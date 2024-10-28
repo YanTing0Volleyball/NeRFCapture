@@ -15,7 +15,7 @@ enum AppMode: Int, Codable {
 }
 
 struct AppState {
-    var appMode: AppMode = .Online
+    var appMode: AppMode = .Offline
     var writerState: DatasetWriter.SessionState = .SessionNotStarted
     
     var trackingState = ""

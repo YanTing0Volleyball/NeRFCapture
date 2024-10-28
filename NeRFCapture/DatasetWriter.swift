@@ -85,6 +85,7 @@ class DatasetWriter {
     }
     
     func finalizeProject(zip: Bool = true) {
+        currentFrameCounter = 0
         writerState = .SessionNotStarted
         let manifest_path = getDocumentsDirectory()
             .appendingPathComponent(projectName)
@@ -141,7 +142,7 @@ class DatasetWriter {
         }
     }
     
-    func writeFrameToDisk(frame: ARFrame, useDepthIfAvailable: Bool = true) {
+    func writeFrameToDisk(frame: ARFrame, useDepthIfAvailable: Bool = false) {
         let frameName =  "\(getCurrentFrameName()).png"
         let depthFrameName =  "\(getCurrentFrameName()).depth.png"
         let baseDir = projectDir
@@ -162,18 +163,20 @@ class DatasetWriter {
         
         let useDepth = frame.sceneDepth != nil && useDepthIfAvailable
         
-        let frameMetadata = getFrameMetadata(frame, withDepth: useDepth)
+        let frameMetadata = getFrameMetadata(frame, withDepth: false) //useDepth
         let rgbBuffer = pixelBufferToUIImage(pixelBuffer: frame.capturedImage)
-        let depthBuffer = useDepth ? pixelBufferToUIImage(pixelBuffer: frame.sceneDepth!.depthMap).resizeImageTo(size:  frame.camera.imageResolution) : nil
-        
+        //let depthBuffer = useDepth ? pixelBufferToUIImage(pixelBuffer: frame.sceneDepth!.depthMap).resizeImageTo(size:  frame.camera.imageResolution) : nil
+
         DispatchQueue.global().async {
             do {
                 let rgbData = rgbBuffer.pngData()
                 try rgbData?.write(to: fileName)
+                /*
                 if useDepth {
                     let depthData = depthBuffer!.pngData()
                     try depthData?.write(to: depthFileName)
                 }
+                 */
             }
             catch {
                 print(error)

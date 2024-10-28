@@ -65,6 +65,8 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
     func createARConfiguration() -> ARWorldTrackingConfiguration {
         let configuration = ARWorldTrackingConfiguration()
         configuration.worldAlignment = .gravity
+        configuration.isAutoFocusEnabled = true
+        configuration.isLightEstimationEnabled = false
         if type(of: configuration).supportsFrameSemantics(.sceneDepth) {
             // Activate sceneDepth
             configuration.frameSemantics = .sceneDepth
