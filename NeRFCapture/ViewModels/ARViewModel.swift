@@ -22,7 +22,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
     var arView: ARView? = nil
 //    let frameSubject = PassthroughSubject<ARFrame, Never>()
     var cancellables = Set<AnyCancellable>()
-    let datasetWriter: DatasetWriter
+    @Published var datasetWriter: DatasetWriter
     let ddsWriter: DDSWriter
     
     init(datasetWriter: DatasetWriter, ddsWriter: DDSWriter) {
@@ -52,13 +52,6 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
                 }
             }
             .store(in: &cancellables)
-        
-//        frameSubject.throttle(for: 0.5, scheduler: RunLoop.main, latest: true).sink {
-//            f in
-//            if self.appState.stream && self.appState.appMode == .Online {
-//                self.ddsWriter.writeFrameToTopic(frame: f)
-//            }
-//        }.store(in: &cancellables)
     }
     
     
@@ -67,6 +60,7 @@ class ARViewModel : NSObject, ARSessionDelegate, ObservableObject {
         configuration.worldAlignment = .gravity
         configuration.isAutoFocusEnabled = true
         configuration.isLightEstimationEnabled = false
+        configuration.providesAudioData = false
         if type(of: configuration).supportsFrameSemantics(.sceneDepth) {
             // Activate sceneDepth
             configuration.frameSemantics = .sceneDepth

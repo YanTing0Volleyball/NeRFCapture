@@ -19,8 +19,8 @@ extension UIImage {
     }
 }
 
-class DatasetWriter {
-    
+class DatasetWriter: ObservableObject {
+
     enum SessionState {
         case SessionNotStarted
         case SessionStarted
@@ -33,7 +33,7 @@ class DatasetWriter {
     
     @Published var currentFrameCounter = 0
     @Published var writerState = SessionState.SessionNotStarted
-    
+
     func projectExists(_ projectDir: URL) -> Bool {
         var isDir: ObjCBool = true
         return FileManager.default.fileExists(atPath: projectDir.absoluteString, isDirectory: &isDir)
@@ -84,7 +84,7 @@ class DatasetWriter {
         }
     }
     
-    func finalizeProject(zip: Bool = true) {
+    func finalizeProject(_ callback: @escaping () -> Void) {
         currentFrameCounter = 0
         writerState = .SessionNotStarted
         let manifest_path = getDocumentsDirectory()
@@ -92,16 +92,17 @@ class DatasetWriter {
             .appendingPathComponent("transforms.json")
         
         writeManifestToPath(path: manifest_path)
+
         DispatchQueue.global().async {
             do {
-                if zip {
-                    let _ = try Zip.quickZipFiles([self.projectDir], fileName: self.projectName)
-                }
+                try Zip.zipFiles(
+                    paths: [self.projectDir],
+                    zipFilePath: self.projectDir.appendingPathExtension("zip"),
+                    password: nil,
+                    compression: .BestCompression
+                ) { if $0 == 1.0 { callback() } }
                 try FileManager.default.removeItem(at: self.projectDir)
-            }
-            catch {
-                print("Could not zip")
-            }
+            } catch { print("Could not zip: \(error)") }
         }
     }
     
