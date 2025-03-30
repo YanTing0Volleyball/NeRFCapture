@@ -51,6 +51,15 @@ struct ContentView : View {
                     .padding(7)
                     .background(.black.opacity(0.4))
                     .clipShape(.rect(cornerRadius: 10))
+                    
+                    Spacer()
+
+                    VStack(alignment:.leading){
+                        Text("\(viewModel.numberOfGuidePointsCaptured)/\(viewModel.numberOfGuidePoints) Points Left")
+                    }
+                    .padding(7)
+                    .background(.black.opacity(0.4))
+                    .clipShape(.rect(cornerRadius: 10))
 
                     Spacer()
 
@@ -89,6 +98,7 @@ struct ContentView : View {
                                 isPause = false
                                 do {
                                     try viewModel.datasetWriter.initializeProject()
+                                    viewModel.isCapturing = true
                                 }
                                 catch {
                                     print("\(error)")
@@ -104,10 +114,12 @@ struct ContentView : View {
                             Spacer()
                             Button {
                                 zipping = true
+                                viewModel.isCapturing = false
                                 viewModel.datasetWriter.finalizeProject {
                                     self.zipping = false
                                     self.showAlert = true
                                 }
+                                viewModel.resetGuidePoints()
                             } label: {
                                 Text("End")
                                     .padding(.horizontal, 20)
@@ -118,6 +130,7 @@ struct ContentView : View {
 
                             Button {
                                 isPause.toggle()
+                                viewModel.isCapturing.toggle()
                             } label: {
                                 Text(isPause ? "Resume" : "Pause")
                                     .padding(.horizontal, 20)
